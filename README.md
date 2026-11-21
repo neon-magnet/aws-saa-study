@@ -29,6 +29,15 @@ npx expo start
 表示された QR コードをスマホの **Expo Go** アプリで読み取ると実機で動きます。
 ブラウザで確認する場合は `npx expo start --web`。
 
+## Web版（GitHub Pages）
+
+main に push すると GitHub Actions（`.github/workflows/deploy-pages.yml`）が Web 版をビルドし、
+`https://neon-magnet.github.io/aws-saa-study/` に公開します。
+
+- 初回のみ、リポジトリの Settings → Pages → Source を「GitHub Actions」にする
+- iPhone の Safari で開き、共有 → 「ホーム画面に追加」でアプリのように使える
+- ローカルで同じものを作る場合：`EXPO_BASE_URL=/aws-saa-study npm run export:pages`
+
 ## 問題の追加
 
 `src/data/questions.ts` に問題を追加します（現在は動作確認用の仮問題 8 問）。

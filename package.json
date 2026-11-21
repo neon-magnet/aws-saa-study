@@ -29,7 +29,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "export:web": "expo export -p web"
+    "export:web": "expo export -p web",
+    "export:pages": "expo export -p web && node scripts/postexport-web.mjs"
   },
   "private": true
 }
