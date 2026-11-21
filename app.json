@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "AWS SAA学習アプリ",
+    "slug": "aws-saa-study",
+    "scheme": "awssaastudy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.example.awssaastudy"
+    },
+    "android": {
+      "package": "com.example.awssaastudy",
+      "adaptiveIcon": {
+        "backgroundColor": "#061B42",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single",
+      "name": "AWS SAA学習アプリ",
+      "shortName": "SAA学習"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "asyncRoutes": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "backgroundColor": "#061B42"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
