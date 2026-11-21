@@ -44,6 +44,7 @@ export default function StudyScreen() {
 
   return (
     <Screen
+      inTabs
       footer={
         <>
           <Text style={s.summary}>

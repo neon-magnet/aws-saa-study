@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router/js-tabs';
 import { Platform, type ColorValue } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/lib/constants';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -12,6 +13,7 @@ const icon =
   );
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
@@ -22,8 +24,9 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: colors.sub,
         sceneStyle: { backgroundColor: colors.bg },
         tabBarLabelStyle: { fontSize: 11, lineHeight: 15, flexShrink: 0, fontWeight: '600' },
-        // Web ではセーフエリアがないため、ラベルが欠けないよう高さを確保する
-        tabBarStyle: Platform.OS === 'web' ? { height: 64, paddingBottom: 6 } : undefined,
+        // Web ではラベルが欠けないよう高さを確保し、iPhone のホームインジケーター分の余白も足す
+        tabBarStyle:
+          Platform.OS === 'web' ? { height: 64 + insets.bottom, paddingBottom: 6 + insets.bottom } : undefined,
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'ホーム', headerTitle: 'AWS SAA学習アプリ', tabBarIcon: icon('home') }} />

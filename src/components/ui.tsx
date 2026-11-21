@@ -17,11 +17,14 @@ export function Screen({
   children,
   footer,
   safeTop = false,
+  inTabs = false,
   scrollRef,
 }: {
   children: ReactNode;
   footer?: ReactNode;
   safeTop?: boolean;
+  /** タブ画面の中ではタブバーが下の余白を持つので、フッターに下のセーフエリアを足さない */
+  inTabs?: boolean;
   scrollRef?: Ref<ScrollViewInstance>;
 }) {
   const insets = useSafeAreaInsets();
@@ -37,7 +40,7 @@ export function Screen({
         {children}
       </ScrollView>
       {footer ? (
-        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 12) }]}>{footer}</View>
+        <View style={[styles.footer, { paddingBottom: inTabs ? 12 : Math.max(insets.bottom, 12) }]}>{footer}</View>
       ) : null}
     </View>
   );
