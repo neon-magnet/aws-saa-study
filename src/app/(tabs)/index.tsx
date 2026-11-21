@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button, Card, ListRow, ProgressBar, Screen, SectionTitle } from '@/components/ui';
+import { LESSONS, nextUnreadLesson } from '@/data/lessons';
 import { QUESTIONS } from '@/data/questions';
 import { colors } from '@/lib/constants';
 import { answeredToday, daysUntilExam, dueQuestionIds, streakDays } from '@/lib/stats';
@@ -12,6 +13,9 @@ export default function HomeScreen() {
   const settings = useStudyStore((s) => s.settings);
   const session = useStudyStore((s) => s.session);
   const startSession = useStudyStore((s) => s.startSession);
+  const readLessons = useStudyStore((s) => s.readLessons);
+  const nextLesson = nextUnreadLesson(readLessons);
+  const readCount = LESSONS.filter((l) => readLessons[l.id]).length;
 
   const due = dueQuestionIds(reviews);
   const today = answeredToday(logs);
@@ -64,6 +68,20 @@ export default function HomeScreen() {
         </Card>
       ) : null}
 
+      {nextLesson ? (
+        <Card>
+          <Text style={s.cardSub}>次に読む単元（{readCount} / {LESSONS.length} 読了）</Text>
+          <Text style={s.cardTitle}>{nextLesson.title}</Text>
+          <Text style={s.cardSub}>{nextLesson.summary}</Text>
+          <Button
+            label="読む"
+            icon="reader"
+            variant="secondary"
+            onPress={() => router.push(`/lesson/${nextLesson.id}`)}
+          />
+        </Card>
+      ) : null}
+
       <Card>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
           <Text style={s.cardTitle}>今日の復習</Text>
@@ -91,6 +109,13 @@ export default function HomeScreen() {
 
       <SectionTitle>学習メニュー</SectionTitle>
       <Card style={{ gap: 4 }}>
+        <ListRow
+          icon="reader"
+          title="教材"
+          sub="出題範囲を分野ごとに読んで学ぶ"
+          right={`${readCount}/${LESSONS.length}`}
+          onPress={() => router.navigate('/learn')}
+        />
         <ListRow
           icon="book"
           title="問題演習"

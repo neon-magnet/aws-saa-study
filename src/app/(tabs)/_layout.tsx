@@ -30,7 +30,8 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'ホーム', headerTitle: 'AWS SAA学習アプリ', tabBarIcon: icon('home') }} />
-      <Tabs.Screen name="study" options={{ title: '学習', headerTitle: '問題演習', tabBarIcon: icon('book') }} />
+      <Tabs.Screen name="learn" options={{ title: '教材', tabBarIcon: icon('reader') }} />
+      <Tabs.Screen name="study" options={{ title: '演習', headerTitle: '問題演習', tabBarIcon: icon('create') }} />
       <Tabs.Screen name="progress" options={{ title: '進捗', tabBarIcon: icon('stats-chart') }} />
       <Tabs.Screen name="settings" options={{ title: '設定', tabBarIcon: icon('settings') }} />
     </Tabs>

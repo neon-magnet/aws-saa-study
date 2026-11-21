@@ -39,6 +39,7 @@ export default function RootLayout() {
         <Stack.Screen name="quiz" options={{ title: '問題', gestureEnabled: false }} />
         <Stack.Screen name="result" options={{ title: '結果', headerBackVisible: false, headerLeft: () => null, gestureEnabled: false }} />
         <Stack.Screen name="bookmarks" options={{ title: 'ブックマーク' }} />
+        <Stack.Screen name="lesson/[id]" options={{ title: '教材' }} />
       </Stack>
     </SafeAreaProvider>
   );

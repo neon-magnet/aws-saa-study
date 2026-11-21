@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, Text, TextInput, View, type ScrollViewInstance } from 'react-native';
 import { Button, Card, ProgressBar, RichText, Screen } from '@/components/ui';
+import { lessonForQuestion } from '@/data/lessons';
 import { questionById } from '@/data/questions';
 import { colors, difficultyLabel, domainShort } from '@/lib/constants';
 import { useStudyStore } from '@/store/useStudyStore';
@@ -61,6 +62,7 @@ function QuestionView({ q }: { q: Question }) {
   );
   const letterOf = (id: string) => LETTERS.charAt(choices.findIndex((c) => c.id === id));
 
+  const lesson = lessonForQuestion(q.id);
   const need = q.type === 'multiple' ? q.answer_ids.length : 1;
   const total = session.question_ids.length;
   const isLast = session.index === total - 1;
@@ -220,6 +222,20 @@ function QuestionView({ q }: { q: Question }) {
             <RichText text={q.explanation} />
           </Card>
 
+          {lesson ? (
+            <Pressable
+              onPress={() => router.push(`/lesson/${lesson.id}`)}
+              style={({ pressed }) => [s.lessonLink, pressed && { opacity: 0.7 }]}
+            >
+              <Ionicons name="reader" size={20} color={colors.navy} />
+              <View style={{ flex: 1 }}>
+                <Text style={s.lessonLinkLabel}>関連する教材を読む</Text>
+                <Text style={s.lessonLinkTitle}>{lesson.title}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.sub} />
+            </Pressable>
+          ) : null}
+
           <Card>
             <Text style={s.cardTitle}>ほかの選択肢が誤りの理由</Text>
             {choices
@@ -320,6 +336,16 @@ const s = StyleSheet.create({
   verdictTitle: { fontSize: 18, fontWeight: '800' },
   verdictSub: { fontSize: 13, color: colors.text, marginTop: 2 },
   cardTitle: { fontSize: 15, fontWeight: '700', color: colors.navy },
+  lessonLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: colors.orangeSoft,
+  },
+  lessonLinkLabel: { fontSize: 12, fontWeight: '700', color: colors.sub },
+  lessonLinkTitle: { fontSize: 14.5, fontWeight: '700', color: colors.navy, marginTop: 2 },
   why: { fontSize: 14, lineHeight: 21, color: colors.text },
   link: { fontSize: 13, color: '#1A5FB4', textDecorationLine: 'underline' },
   memo: {

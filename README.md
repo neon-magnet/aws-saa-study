@@ -7,7 +7,8 @@ Expo（React Native）+ TypeScript + Expo Router + Zustand で作っています
 
 | 機能 | 画面 |
 | --- | --- |
-| 問題演習（分野・問題数・出題範囲を選ぶ、単一／複数選択） | 学習タブ → 問題 |
+| 教材（4 分野 × 4 単元の読み物。読了管理、単元ごとの問題演習） | 教材タブ → 単元 |
+| 問題演習（分野・難易度・問題数・出題範囲を選ぶ、単一／複数選択） | 演習タブ → 問題 |
 | 即時解説（正誤、解説、各誤答の理由、参考ドキュメント） | 問題 |
 | 自信度入力（自信あり／なしで回答） | 問題 |
 | 弱点復習（SM-2 方式の間隔反復） | ホーム → 今日の復習 |
@@ -38,6 +39,11 @@ main に push すると GitHub Actions（`.github/workflows/deploy-pages.yml`）
 - iPhone の Safari で開き、共有 → 「ホーム画面に追加」でアプリのように使える
 - ローカルで同じものを作る場合：`EXPO_BASE_URL=/aws-saa-study npm run export:pages`
 
+## 教材の追加・編集
+
+`src/data/lessons/*.ts` に分野ごとの単元があります。本文は簡易 Markdown（`##` 見出し、`- ` 箇条書き、`> ` ポイント枠、`|` 表、`**太字**`）。
+`questionIds` に書いた問題が「この単元の問題を解く」で出題され、その問題の解説から単元へ戻れます。
+
 ## 問題の追加
 
 分野ごとのファイル `src/data/bank/*.ts` に問題を追加します（現在はオリジナル問題 56 問：4 分野 × 基礎 7 問・応用 7 問）。難易度は `difficulty: 1`（基礎）か `2`（応用）。
@@ -67,12 +73,14 @@ main に push すると GitHub Actions（`.github/workflows/deploy-pages.yml`）
 ```
 src/
   app/                 画面（Expo Router のファイルベースルーティング）
-    (tabs)/            ホーム・学習・進捗・設定タブ
+    (tabs)/            ホーム・教材・演習・進捗・設定タブ
+    lesson/[id].tsx    教材の単元
     quiz.tsx           問題・解説
     result.tsx         結果
     bookmarks.tsx      ブックマーク
-  components/ui.tsx    共通 UI
-  data/questions.ts    問題データ
+  components/          共通 UI、教材本文の表示（Markdown.tsx）
+  data/questions.ts    問題データ（分野別の本体は data/bank/）
+  data/lessons/        教材データ
   lib/                 SM-2、統計、日付、定数
   store/               Zustand ストア（端末内に保存）
   types.ts             型定義

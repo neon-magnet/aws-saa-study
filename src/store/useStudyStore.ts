@@ -16,6 +16,7 @@ type StudyState = {
   reviews: Record<string, ReviewState>;
   settings: Settings;
   session: Session | null;
+  readLessons: Record<string, string>; // 単元ID → 読了日時（ISO）
 
   startSession: (mode: StudyMode, questionIds: string[]) => void;
   answerCurrent: (selectedIds: string[], confident: boolean) => void;
@@ -25,6 +26,7 @@ type StudyState = {
   setMemo: (questionId: string, memo: string) => void;
   setExamDate: (date: string | null) => void;
   setDailyGoal: (n: number) => void;
+  setLessonRead: (lessonId: string, read: boolean) => void;
   resetAll: () => void;
 };
 
@@ -64,6 +66,7 @@ const initial = {
   reviews: {} as Record<string, ReviewState>,
   settings: { examDate: null, dailyGoal: 10 } as Settings,
   session: null as Session | null,
+  readLessons: {} as Record<string, string>,
 };
 
 export const useStudyStore = create<StudyState>()(
@@ -151,6 +154,12 @@ export const useStudyStore = create<StudyState>()(
 
       setExamDate: (date) => set({ settings: { ...get().settings, examDate: date } }),
       setDailyGoal: (n) => set({ settings: { ...get().settings, dailyGoal: n } }),
+      setLessonRead: (lessonId, read) => {
+        const next = { ...get().readLessons };
+        if (read) next[lessonId] = new Date().toISOString();
+        else delete next[lessonId];
+        set({ readLessons: next });
+      },
       resetAll: () => set({ ...initial }),
     }),
     {
@@ -162,6 +171,7 @@ export const useStudyStore = create<StudyState>()(
         reviews: s.reviews,
         settings: s.settings,
         session: s.session,
+        readLessons: s.readLessons,
       }),
     },
   ),
