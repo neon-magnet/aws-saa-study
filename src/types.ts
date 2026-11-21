@@ -1,5 +1,7 @@
 export type Domain = 'secure' | 'resilient' | 'performance' | 'cost';
 
+export type Difficulty = 1 | 2;
+
 export type Choice = {
   id: string; // A〜F
   text: string;
@@ -16,7 +18,7 @@ export type Question = {
   answer_ids: string[];
   explanation: string;
   references: string[];
-  difficulty: 1 | 2 | 3;
+  difficulty: Difficulty; // 1: 基礎 / 2: 応用
   version: number;
 };
 

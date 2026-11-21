@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, Text, TextInput, View, type ScrollViewInstance } from 'react-native';
 import { Button, Card, ProgressBar, RichText, Screen } from '@/components/ui';
 import { questionById } from '@/data/questions';
-import { colors, domainShort } from '@/lib/constants';
+import { colors, difficultyLabel, domainShort } from '@/lib/constants';
 import { useStudyStore } from '@/store/useStudyStore';
 import type { Question } from '@/types';
 
@@ -52,6 +52,14 @@ function QuestionView({ q }: { q: Question }) {
   const scrollRef = useRef<ScrollViewInstance>(null);
   const verdictY = useRef<number | null>(null);
   const justAnswered = useRef(false);
+
+  // 正解の位置に偏りが出ないよう、選択肢の並びを問題ごとにシャッフルする。
+  // 同じ学習セッション内では並びが変わらないよう、開始時刻と問題IDから決める。
+  const choices = useMemo(
+    () => seededShuffle(q.choices, `${session.started_at}:${q.id}`),
+    [q.choices, q.id, session.started_at],
+  );
+  const letterOf = (id: string) => LETTERS.charAt(choices.findIndex((c) => c.id === id));
 
   const need = q.type === 'multiple' ? q.answer_ids.length : 1;
   const total = session.question_ids.length;
@@ -129,6 +137,7 @@ function QuestionView({ q }: { q: Question }) {
 
       <View style={s.tags}>
         <Text style={[s.tag, s.tagDomain]}>{domainShort(q.domain)}</Text>
+        <Text style={[s.tag, q.difficulty === 2 ? s.tagHard : s.tagBasic]}>{difficultyLabel(q.difficulty)}</Text>
         {q.services.map((sv) => (
           <Text key={sv} style={s.tag}>
             {sv}
@@ -140,7 +149,7 @@ function QuestionView({ q }: { q: Question }) {
       {q.type === 'multiple' ? <Text style={s.hint}>{need} つ選んでください</Text> : null}
 
       <View style={{ gap: 10 }}>
-        {q.choices.map((c) => {
+        {choices.map((c, i) => {
           const isSel = selected.includes(c.id);
           const isAns = q.answer_ids.includes(c.id);
           let border = isSel ? colors.navy : colors.border;
@@ -168,7 +177,7 @@ function QuestionView({ q }: { q: Question }) {
               accessibilityState={{ checked: isSel, disabled: !!answered }}
               style={[s.choice, { borderColor: border, backgroundColor: bg }]}
             >
-              <Text style={[s.choiceId, isSel && !answered && { color: colors.navy }]}>{c.id}</Text>
+              <Text style={[s.choiceId, isSel && !answered && { color: colors.navy }]}>{LETTERS.charAt(i)}</Text>
               <Text style={s.choiceText}>{c.text}</Text>
               {mark ? (
                 <Ionicons name={mark} size={22} color={isAns ? colors.correct : colors.wrong} />
@@ -199,7 +208,7 @@ function QuestionView({ q }: { q: Question }) {
                 {answered.is_correct ? '正解' : '不正解'}
               </Text>
               <Text style={s.verdictSub}>
-                正解は {q.answer_ids.join('、')}
+                正解は {q.answer_ids.map(letterOf).sort().join('、')}
                 {answered.is_correct && !answered.confident ? '（自信なし → 近いうちに復習します）' : ''}
                 {!answered.is_correct ? '（明日の復習に追加しました）' : ''}
               </Text>
@@ -213,11 +222,11 @@ function QuestionView({ q }: { q: Question }) {
 
           <Card>
             <Text style={s.cardTitle}>ほかの選択肢が誤りの理由</Text>
-            {q.choices
+            {choices
               .filter((c) => c.why_wrong)
               .map((c) => (
                 <Text key={c.id} style={s.why}>
-                  <Text style={{ fontWeight: '700' }}>{c.id}：</Text>
+                  <Text style={{ fontWeight: '700' }}>{letterOf(c.id)}：</Text>
                   {c.why_wrong}
                 </Text>
               ))}
@@ -259,6 +268,25 @@ function QuestionView({ q }: { q: Question }) {
   );
 }
 
+const LETTERS = 'ABCDEF';
+
+/** 文字列から決まる疑似乱数でシャッフルする（同じ seed なら同じ並び） */
+function seededShuffle<T>(items: T[], seed: string): T[] {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+  const rand = () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const s = StyleSheet.create({
   metaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   progressText: { fontSize: 14, fontWeight: '700', color: colors.sub },
@@ -274,6 +302,8 @@ const s = StyleSheet.create({
     overflow: 'hidden',
   },
   tagDomain: { color: colors.navy, backgroundColor: colors.orangeSoft },
+  tagBasic: { color: colors.correct, backgroundColor: colors.correctSoft },
+  tagHard: { color: '#fff', backgroundColor: colors.navy },
   stem: { fontSize: 16, lineHeight: 26, color: colors.text },
   hint: { fontSize: 13, fontWeight: '700', color: colors.orange },
   choice: {

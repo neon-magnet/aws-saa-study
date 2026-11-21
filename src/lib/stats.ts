@@ -1,5 +1,5 @@
 import { QUESTIONS } from '@/data/questions';
-import type { AnswerLog, Domain, Question, ReviewState } from '@/types';
+import type { AnswerLog, Difficulty, Domain, Question, ReviewState } from '@/types';
 import { DOMAINS } from './constants';
 import { addDays, daysBetween, toYmd } from './date';
 
@@ -113,12 +113,14 @@ const shuffle = <T,>(arr: T[]) => {
 export const pickPracticeQuestions = (
   logs: AnswerLog[],
   domains: Domain[],
+  difficulties: Difficulty[],
   filter: PracticeFilter,
   count: number,
 ): string[] => {
   const latest = latestByQuestion(logs);
   const pool = QUESTIONS.filter((q: Question) => {
     if (!domains.includes(q.domain)) return false;
+    if (!difficulties.includes(q.difficulty)) return false;
     const l = latest.get(q.id);
     if (filter === 'unanswered') return !l;
     if (filter === 'wrong') return !!l && !l.is_correct;
@@ -129,5 +131,9 @@ export const pickPracticeQuestions = (
     .map((q) => q.id);
 };
 
-export const countPool = (logs: AnswerLog[], domains: Domain[], filter: PracticeFilter) =>
-  pickPracticeQuestions(logs, domains, filter, Number.MAX_SAFE_INTEGER).length;
+export const countPool = (
+  logs: AnswerLog[],
+  domains: Domain[],
+  difficulties: Difficulty[],
+  filter: PracticeFilter,
+) => pickPracticeQuestions(logs, domains, difficulties, filter, Number.MAX_SAFE_INTEGER).length;

@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Screen } from '@/components/ui';
 import { QUESTIONS } from '@/data/questions';
-import { colors, domainShort } from '@/lib/constants';
+import { colors, difficultyLabel, domainShort } from '@/lib/constants';
 import { useStudyStore } from '@/store/useStudyStore';
 
 export default function BookmarksScreen() {
@@ -39,6 +39,7 @@ export default function BookmarksScreen() {
                 <Card style={pressed ? { opacity: 0.7 } : undefined}>
                   <View style={s.tags}>
                     <Text style={s.tag}>{domainShort(q.domain)}</Text>
+                    <Text style={s.services}>{difficultyLabel(q.difficulty)}</Text>
                     <Text style={s.services}>{q.services.join(' · ')}</Text>
                   </View>
                   <Text style={s.stem} numberOfLines={3}>

@@ -40,7 +40,7 @@ main に push すると GitHub Actions（`.github/workflows/deploy-pages.yml`）
 
 ## 問題の追加
 
-`src/data/questions.ts` に問題を追加します（現在は動作確認用の仮問題 8 問）。
+分野ごとのファイル `src/data/bank/*.ts` に問題を追加します（現在はオリジナル問題 56 問：4 分野 × 基礎 7 問・応用 7 問）。難易度は `difficulty: 1`（基礎）か `2`（応用）。
 型は `src/types.ts` の `Question` を参照。
 
 ```ts

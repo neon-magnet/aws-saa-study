@@ -2,12 +2,17 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Chip, Screen, SectionTitle } from '@/components/ui';
-import { colors, DOMAINS } from '@/lib/constants';
+import { colors, DIFFICULTIES, DOMAINS } from '@/lib/constants';
 import { countPool, pickPracticeQuestions, type PracticeFilter } from '@/lib/stats';
 import { useStudyStore } from '@/store/useStudyStore';
-import type { Domain } from '@/types';
+import type { Difficulty, Domain } from '@/types';
 
 const COUNTS = [5, 10, 20];
+type Level = 'all' | Difficulty;
+const LEVELS: { key: Level; label: string; desc: string }[] = [
+  { key: 'all', label: 'すべて', desc: '基礎と応用をまぜて出題' },
+  ...DIFFICULTIES.map((d) => ({ key: d.key as Level, label: d.label, desc: d.desc })),
+];
 const FILTERS: { key: PracticeFilter; label: string }[] = [
   { key: 'all', label: 'すべて' },
   { key: 'unanswered', label: '未回答のみ' },
@@ -19,17 +24,19 @@ export default function StudyScreen() {
   const startSession = useStudyStore((s) => s.startSession);
 
   const [domains, setDomains] = useState<Domain[]>(DOMAINS.map((d) => d.key));
+  const [level, setLevel] = useState<Level>('all');
   const [count, setCount] = useState(10);
+  const difficulties: Difficulty[] = level === 'all' ? DIFFICULTIES.map((d) => d.key) : [level];
   const [filter, setFilter] = useState<PracticeFilter>('all');
 
-  const available = countPool(logs, domains, filter);
+  const available = countPool(logs, domains, difficulties, filter);
   const willAsk = Math.min(available, count);
 
   const toggleDomain = (d: Domain) =>
     setDomains((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
 
   const start = () => {
-    const ids = pickPracticeQuestions(logs, domains, filter, count);
+    const ids = pickPracticeQuestions(logs, domains, difficulties, filter, count);
     if (ids.length === 0) return;
     startSession('practice', ids);
     router.push('/quiz');
@@ -66,6 +73,14 @@ export default function StudyScreen() {
         })}
       </Card>
 
+      <SectionTitle>難易度</SectionTitle>
+      <View style={s.chips}>
+        {LEVELS.map((l) => (
+          <Chip key={String(l.key)} label={l.label} selected={level === l.key} onPress={() => setLevel(l.key)} />
+        ))}
+      </View>
+      <Text style={s.levelDesc}>{LEVELS.find((l) => l.key === level)?.desc}</Text>
+
       <SectionTitle>問題数</SectionTitle>
       <View style={s.chips}>
         {COUNTS.map((n) => (
@@ -97,5 +112,6 @@ const s = StyleSheet.create({
   },
   domainOn: { color: colors.navy, fontWeight: '700', borderColor: colors.navy, backgroundColor: '#EEF2FA' },
   weight: { fontSize: 12, color: colors.sub, fontWeight: '400' },
+  levelDesc: { fontSize: 13, color: colors.sub, marginTop: -6 },
   summary: { fontSize: 13, color: colors.sub, textAlign: 'center' },
 });

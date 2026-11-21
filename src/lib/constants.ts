@@ -1,4 +1,4 @@
-import type { Domain } from '@/types';
+import type { Difficulty, Domain } from '@/types';
 
 export const colors = {
   navy: '#061B42',
@@ -26,3 +26,10 @@ export const DOMAINS: { key: Domain; label: string; short: string; weight: numbe
 export const domainShort = (d: Domain) => DOMAINS.find((x) => x.key === d)?.short ?? d;
 
 export const PASS_SCORE = 720;
+
+export const DIFFICULTIES: { key: Difficulty; label: string; desc: string }[] = [
+  { key: 1, label: '基礎', desc: 'サービスの用途と基本の使い分け' },
+  { key: 2, label: '応用', desc: '複数の要件を満たす設計の判断' },
+];
+
+export const difficultyLabel = (d: Difficulty) => DIFFICULTIES.find((x) => x.key === d)?.label ?? '';

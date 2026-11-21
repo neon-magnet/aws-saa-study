@@ -1,10 +1,17 @@
+import { DOMAINS } from '@/lib/constants';
 import type { Question } from '@/types';
+import { COST } from './bank/cost';
+import { PERFORMANCE } from './bank/performance';
+import { RESILIENT } from './bank/resilient';
+import { SECURE } from './bank/secure';
 
 /**
- * 動作確認用の仮問題（4分野×2問）。
- * 本番の問題は後で差し替える。将来は S3 + CloudFront から JSON を取得する想定。
+ * 問題データ（すべてオリジナル）。
+ * 難易度は 1: 基礎 / 2: 応用 の 2 段階。
+ * 分野ごとの問題は ./bank/ 以下のファイルに追加する。
+ * 将来は S3 + CloudFront から JSON を取得する想定。
  */
-export const QUESTIONS: Question[] = [
+const FIRST_SET: Question[] = [
   {
     id: 'Q-SEC-0001',
     domain: 'secure',
@@ -167,4 +174,11 @@ export const QUESTIONS: Question[] = [
   },
 ];
 
-export const questionById = (id: string) => QUESTIONS.find((q) => q.id === id);
+const domainOrder = (q: Question) => DOMAINS.findIndex((d) => d.key === q.domain);
+
+export const QUESTIONS: Question[] = [...FIRST_SET, ...SECURE, ...RESILIENT, ...PERFORMANCE, ...COST].sort(
+  (a, b) => domainOrder(a) - domainOrder(b) || a.id.localeCompare(b.id),
+);
+
+const byId = new Map(QUESTIONS.map((q) => [q.id, q]));
+export const questionById = (id: string) => byId.get(id);
